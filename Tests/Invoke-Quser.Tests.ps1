@@ -5,8 +5,6 @@
 [IO.FileInfo]      $testFile = Join-Path -Path $projectDirectory -ChildPath (Join-Path -Path 'Private' -ChildPath ($pesterFile.Name -replace '\.Tests\.', '.')) -Resolve
 . $testFile
 
-. $(Join-Path -Path $projectDirectory -ChildPath (Join-Path -Path 'Private' -ChildPath 'Add-LMEntry.ps1') -Resolve)
-
 [System.Collections.ArrayList] $tests = @()
 $examples = Get-ChildItem (Join-Path -Path $projectRoot -ChildPath 'Examples' -Resolve) -Filter "$($testFile.BaseName).*.psd1" -File
 
@@ -17,9 +15,6 @@ foreach ($example in $examples) {
     Write-Verbose "Test: $($test | ConvertTo-Json)"
     
     foreach ($exampleData in (Import-PowerShellDataFile -LiteralPath $example.FullName).GetEnumerator()) {
-        if ($exampleData.Name -eq 'Parameters') {
-            $exampleData.Value.QuserObject.DirectoryPath = $exampleData.Value.QuserObject.DirectoryPath.Replace('%ProjectRoot%', $projectRoot)
-        }
         $test.Add($exampleData.Name, $exampleData.Value)
     }
     
@@ -29,22 +24,21 @@ foreach ($example in $examples) {
 
 Describe $testFile.Name {
     foreach ($test in $tests) {
-        Mock Add-LMEntry {
-            Write-Host "Mocked Add-LMEntry" -ForegroundColor Cyan
-        } -Verifiable
-        Mock Get-Process {
-            return $test.Processes
-        }
-
         Context $test.Name {
-            [hashtable] $lmEntry = $test.Parameters
-            
-            It "Initialize-LMEntry" {
-                { Initialize-LMEntry @lmEntry } | Should Not Throw
-            }
+            [hashtable] $parameters = $test.Parameters
+
+            if ($test.ServerExists) {
+                It "Invoke-Quser" {
+                    { $script:quserOutput = Invoke-Quser @parameters } | Should Not Throw
+                }
     
-            It "Was Called: Add-LMEntry" {
-                Assert-MockCalled 'Add-LMEntry' -Times $test.Processes.Length -Exactly
+                It "Validate output is like CSV" {
+                    { $script:quserOutput -replace '\s{2,}', ',' | ConvertFrom-Csv } | Should Not Throw
+                }
+            } else {
+                It "Invoke-Quser" {
+                    { $script:quserOutput = Invoke-Quser @parameters } | Should Throw
+                }
             }
         }
     }
