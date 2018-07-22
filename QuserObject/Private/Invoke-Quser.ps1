@@ -17,24 +17,25 @@ function Invoke-Quser {
     )
 
     begin {
-        Write-Debug "[QuserObject Invoke-Quser] Bound Parameters: $($MyInvocation.BoundParameters | Out-String)"
-        Write-Debug "[QuserObject Invoke-Quser] Unbound Parameters: $($MyInvocation.UnboundParameters | Out-String)"
+        Write-Debug "[QuserObject Invoke-Quser] Begin Bound Parameters: $($MyInvocation.BoundParameters | ConvertTo-Json)"
+        Write-Debug "[QuserObject Invoke-Quser] Begin Unbound Parameters: $($MyInvocation.UnboundParameters | ConvertTo-Json)"
     }
 
     process {
-        Write-Debug "[QuserObject Invoke-Quser] Pipeline Bound Parameters: $($MyInvocation.BoundParameters | Out-String)"
-        Write-Debug "[QuserObject Invoke-Quser] Pipeline Unbound Parameters: $($MyInvocation.UnboundParameters | Out-String)"
+        Write-Debug "[QuserObject Invoke-Quser] Process Bound Parameters: $($MyInvocation.BoundParameters | ConvertTo-Json)"
+        Write-Debug "[QuserObject Invoke-Quser] Process Unbound Parameters: $($MyInvocation.UnboundParameters | ConvertTo-Json)"
 
-        $quser = if ($Server) { '{0} /SERVER:{1}' -f (Get-Command 'quser').Path, $_ } else { (Get-Command 'quser').Path }
+        $quser = if ($Server) { '{0} /SERVER:{1}' -f (Get-Command 'quser').Path, $Server } else { (Get-Command 'quser').Path }
         Write-Debug "[QuserObject Invoke-Quser] QUSER Command: ${quser}"
 
-        $result = & $quser
+        $result = (Invoke-Expression $quser) 2>&1
         Write-Verbose "[QuserObject Invoke-Quser] QUSER Result (${LASTEXITCODE}):`n$($result | Out-String)"
 
         if ($LASTEXITCODE -eq 0) {
             Write-Output $result
         } else {
-            Throw [System.Management.Automation.ParameterBindingException] ('{0}: {1}' -f $Server, $Error[0].Exception.Message)
+            $message = if ($result.Exception) { $result.Exception.Message } else { $result }
+            Write-Warning " ${Server}: $($message -join ', ')"
         }
     }
 }

@@ -13,17 +13,19 @@ foreach ($example in $examples) {
         Name = $example.BaseName.Replace("$($testFile.BaseName).$verb", '').Replace('_', ' ')
     }
     Write-Verbose "Test: $($test | ConvertTo-Json)"
-    
+
     foreach ($exampleData in (Import-PowerShellDataFile -LiteralPath $example.FullName).GetEnumerator()) {
         $test.Add($exampleData.Name, $exampleData.Value)
     }
-    
+
     Write-Verbose "Test: $($test | ConvertTo-Json)"
     $tests.Add($test) | Out-Null
 }
 
 Describe $testFile.Name {
     foreach ($test in $tests) {
+        Remove-Variable -Scope 'Script' -Name 'quserOutput' -Force -ErrorAction SilentlyContinue
+
         Context $test.Name {
             [hashtable] $parameters = $test.Parameters
 
@@ -31,13 +33,17 @@ Describe $testFile.Name {
                 It "Invoke-Quser" {
                     { $script:quserOutput = Invoke-Quser @parameters } | Should Not Throw
                 }
-    
+
                 It "Validate output is like CSV" {
                     { $script:quserOutput -replace '\s{2,}', ',' | ConvertFrom-Csv } | Should Not Throw
                 }
             } else {
                 It "Invoke-Quser" {
-                    { $script:quserOutput = Invoke-Quser @parameters } | Should Throw
+                    { $script:quserOutput = Invoke-Quser @parameters } | Should Not Throw
+                }
+
+                It "Validate output is null" {
+                    $script:quserOutput | Should BeNullOrEmpty
                 }
             }
         }
