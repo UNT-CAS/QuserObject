@@ -28,7 +28,11 @@ function Invoke-Quser {
         $quser = if ($Server) { '{0} /SERVER:{1}' -f (Get-Command 'quser').Path, $Server } else { (Get-Command 'quser').Path }
         Write-Debug "[QuserObject Invoke-Quser] QUSER Command: ${quser}"
 
-        $result = (Invoke-Expression $quser) 2>&1
+        try {
+            $result = (Invoke-Expression $quser) 2>&1
+        } catch {
+            $result = $Error[0].Exception.Message
+        }
         Write-Verbose "[QuserObject Invoke-Quser] QUSER Result (${LASTEXITCODE}):`n$($result | Out-String)"
 
         if ($LASTEXITCODE -eq 0) {
