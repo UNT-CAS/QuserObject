@@ -10,9 +10,8 @@ I thought I'd make this into a PowerShell module for ease of use and distributio
 # Quick Setup
 
 1. Install *QuserObject*: `Install-Module QuserObject`.
-2. Import *QuserObject*: `Import-Module QuserObject`.
-3. Start *QuserObject*: `Get-Quser`.
-
+1. Import *QuserObject*: `Import-Module QuserObject`.
+1. Start *QuserObject*: `Get-Quser`.
 
 # Examples
 
