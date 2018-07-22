@@ -3,19 +3,9 @@
 
         This is the MAIN script. This script watches for events and sends found events to Invoke-LMEvent for handling.
 
-    .Parameter LicenseManager
+    .Parameter QuserOutput
 
-        A JSON hashtable of processes to concurrency maximum.
-        Example: '{"DirectoryPath":"\\\\license\\LicenseManager","Processes":{"notepad.exe":5,"Calculator.exe":10}}'
-        Done this way so we can use the default of setting this as an Environment Variable for the system. Here's the example, but a little easier to read:
-            {
-                "DirectoryPath":  "\\\\license\\LicenseManager",
-                "Processes":  {
-                                "notepad.exe":  5,
-                                "Calculator.exe":  10
-                            }
-            }
-        The number with the process name is the concurrency count.
+        This is the STDOUT as returned by `quser.exe`.
 #>
 function ConvertTo-QuserObject {
     [CmdletBinding()]

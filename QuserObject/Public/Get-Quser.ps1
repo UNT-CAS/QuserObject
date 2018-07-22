@@ -19,19 +19,19 @@
 
     .Example
 
-        Get-QuserObject
+        Get-Quser
 
     .Example
 
-        Get-QuserObject -ServerName 'ThisServer'
+        Get-Quser -ServerName 'ThisServer'
 
     .Example
 
-        Get-QuserObject -ServerName 'ThisServer', 'ThatServer'
+        Get-Quser -ServerName 'ThisServer', 'ThatServer'
 
     .Example
 
-        Get-ADComputer 'ThisServer' | Get-QuserObject
+        Get-ADComputer 'ThisServer' | Get-Quser
 #>
 function Get-Quser {
     [CmdletBinding(DefaultParameterSetName = 'ServerName')]
@@ -58,18 +58,18 @@ function Get-Quser {
 
         [Parameter(ParameterSetName = 'ADComputer')]
         [ValidateNotNullOrEmpty()]
-        [PSObject]
+        [string]
         $Property = 'Name'
     )
 
     begin {
-        Write-Debug "[QuserObject Get-QuserObject] Begin Bound Parameters: $($MyInvocation.BoundParameters | ConvertTo-Json)"
-        Write-Debug "[QuserObject Get-QuserObject] Begin Unbound Parameters: $($MyInvocation.UnboundParameters | ConvertTo-Json)"
+        Write-Debug "[QuserObject Get-Quser] Begin Bound Parameters: $($MyInvocation.BoundParameters | ConvertTo-Json)"
+        Write-Debug "[QuserObject Get-Quser] Begin Unbound Parameters: $($MyInvocation.UnboundParameters | ConvertTo-Json)"
     }
 
     process {
-        Write-Debug "[QuserObject Get-QuserObject] Process Bound Parameters: $($MyInvocation.BoundParameters | ConvertTo-Json)"
-        Write-Debug "[QuserObject Get-QuserObject] Process Unbound Parameters: $($MyInvocation.UnboundParameters | ConvertTo-Json)"
+        Write-Debug "[QuserObject Get-Quser] Process Bound Parameters: $($MyInvocation.BoundParameters | ConvertTo-Json)"
+        Write-Debug "[QuserObject Get-Quser] Process Unbound Parameters: $($MyInvocation.UnboundParameters | ConvertTo-Json)"
 
         if ($ServerName) {
             $ServerName | Invoke-Quser | ConvertTo-QuserObject
