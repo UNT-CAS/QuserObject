@@ -2,24 +2,17 @@ PSTOPIC
     about_QuserObject
 
 SHORT DESCRIPTION
-    Manage concurrent usage of software that doesn't use a smarter license server, such as Flex LM.
+    Run `quser.exe` and return a proper PowerShell Object.
 
 LONG DESCRIPTION
-    We have several pieces of software that don't use a license server. Because of this, we own n number of stand-alone licenses.
-    When applicable, we can install this on as many computers as we want, such as in a VDI farm, and make it availble as long as we can control concurrency.
-    This is an attempt to control concurrency in these situations.
+    Run `quser.exe` and return a proper PowerShell Object.
+    I discussed this on my blog to enhance a StackOverflow answer.
+    I thought I'd make this into a PowerShell module for ease of use and distribution.
 
 DETAILED DESCRIPTION
-    We have several pieces of software that don't use a license server. Because of this, we own n number of stand-alone licenses.
-    When applicable, we can install this on as many computers as we want, such as in a VDI farm, and make it availble as long as we can control concurrency.
-    This is an attempt to control concurrency in these situations.
-
-    I prefer to run this as a scheduled task that triggers at reboot and re-runs every 15 minutes or so; ensure:
-
-    - If it's already running, another one doesn't startup.
-    - It's never forced to die after a timeout.
-
-    This ensure that the process is always running. If it dies for some reason, we'll get it running again within 15 minutes
-
+    Run `quser.exe` and return a proper PowerShell Object.
+    I discussed this on my blog to enhance a StackOverflow answer.
+    I thought I'd make this into a PowerShell module for ease of use and distribution.
+    
     You can find documentation here:
         https://github.com/UNT-CAS/QuserObject
