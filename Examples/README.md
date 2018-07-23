@@ -7,37 +7,32 @@ Hopefully, this document will make it a little easier to understand what's in th
 Each Function has it's own set of examples.
 It should be obvious, but the function's example's file name starts with the function's name; followed by a description of the test.
 
-- JSON File: Used for tracking concurrency per product.
-- CSV File: Used for logging denials. This is so we can report on how many times a denial has been issued.
+- The PSD1 Files are the Examples.
+- The XML files are used for testing AD Computers. The XML was created like this: `Get-ADComputer 'ThisComputer' | Export-Clixml`.
 
 ## Test Entry
 
 ```powershell
 @{
     Parameters = @{
-        QuserObject = @{
-            DirectoryPath = '%ProjectRoot%\dev\QuserObject'
-            Processes     = @{
-                '19f3c7a5-8e6a-4379-ab73-b65c2f0a0ea7' = 2
-                'notepad.exe'                          = 5
-                'Calculator.exe'                       = 10
-            }
-        }
-        ProcessName = '19f3c7a5-8e6a-4379-ab73-b65c2f0a0ea7'
-        ProcessId = 19
-        ProcessUserName = 'Test\Pester'
+        QuserOutput = @(
+            'USERNAME              SESSIONNAME        ID  STATE   IDLE TIME  LOGON TIME',
+            '>vertigoray            console             1  Active      none   7/13/2018 11:26 AM'
+        )
     }
-    ...
+    GetDateNow = '2018-07-21T11:49:09.2879117-05:00'
+    Output = @(
+        @{
+            Username    = 'vertigoray'
+            Sessionname = 'console'
+            Id          = 1
+            State       = 'Active'
+            IdleTime    = $null
+            LogonTime   = '07/13/2018 11:26:00'
+        }
+    )
 }
 ```
-
-*Note: see the main README to know what `%ProjectRoot%` is.*
-*The `dev` folder is in `.gitignore`.*
-
-*Note: the GUID (`19f3c7a5-8e6a-4379-ab73-b65c2f0a0ea7`) is a random guid for testing purposes.*
-*A real Process Name would be something like: `notepad.exe`, `Calculator.exe`, etc..*
-
-*Note: the `...` basically tells you that there are likely more main keys, but they are specific to each function we're testing.*
 
 # Example File Name
 
@@ -57,85 +52,42 @@ For lack of a better term, I'm going to call each item in the hashtable a *main 
 - Default: `$null`
 
 This is used for splatting into the function that we're testing.
-See the fu
 
-*Note: adding it to the file as well would cause and error that I could easily fix, but I don't care to.*
+## GetDateNow
 
-## AssertReturns
+- Type: `[strin]`
+- Function Tests: ``Get-Date``
 
-- Type: `[bool]`
-- Default: `$false`
-- Function Tests: `Invoke-LMEvent`
+This specifies that `[DateTime]` that should be returned by the `Get-Date` function; for testing purposes.
+Normally, calling `Get-Date` will return the current date and time.
 
-Sets how the mocked `Assert-LMEntry` should return. This is really only in play when the Action is Start.
+## Output
 
-## ExistingCsv
+- Type: `[array]`
+- Function Tests: ``Get-Date``
 
-- Type: `[bool]` or `[string]`
-- Default: `$false`
-- Function Tests: `Write-LMEntryDenial`
+The expected output/return of the function based on the parameters used.
 
-If `[bool]` then we will ensure the test starts with an empty CSV (`$true`) or without a CSV at all (`$false`).
+## ADComputer
 
-If `[string]` then we will ensure the test starts with a CSV with the contents set to value of this variable.
-
-## ExistingJson
-
-- Type: `[bool]` or `[string]`
-- Default: `$false`
-- String Replacement:
-    - `{0}`: The name of the current computer.
-- Function Tests: `Add-LMEntry`, `Assert-LMEntry`, `Deny-LMEntry`
+- Type: `[string]`
+- Function Tests: `Get-Quser`
 
 If `[bool]` then we will ensure the test starts with an empty JSON (`$true`) or without a JSON at all (`$false`).
 
 If `[string]` then we will ensure the test starts with a JSON with the contents set to value of this variable.
 
-## ExpectedCsv
+## Pipeline
 
-- Type: `[string]`
-- Default: `$false`
-- String Replacement:
-    - `{0}`: The name of the current computer.
-    - `{1}`: Timestamp from one minute ago.
-- Function Tests: `Write-LMEntryDenial`
+- Type: `[hashtable]`
+- Default: `$null`
 
-We will test the resultant CSV (the CSV created from calling the function) with the value of this variable to ensure they are the same.
+Same as the [Parameters](#parameters) key, but specifically does a pipeline test instead of splatting.
 
-## ExpectedJson
-
-- Type: `[bool]` or `[string]`
-- Default: `$false`
-- String Replacement:
-    - `{0}`: The name of the current computer.
-    - `{1}`: Timestamp from one minute ago.
-- Function Tests: `Add-LMEntry`, `Deny-LMEntry`
-
-If `[bool]` and `$false` then we will ensure there is no change to the JSON at all.
-There's no support for `[bool]` and `$true`.
-
-If `[string]` then we will test the resultant JSON (the JSON created from calling the function) with the value of this variable to ensure they are the same.
-
-## NoChange
+## ServerExists
 
 - Type: `[bool]`
 - Default: `$false`
-- Function Tests: `Remove-LMEntry`
+- Function Tests: `Invoke-Quser`
 
-Explicitely test if the JSON has been modified in any way.
-
-## ProcessAllowed
-
-- Type: `[bool]`
-- Default: `$false`
-- Function Tests: `Assert-LMEntry`
-
-We will ensure the call to `Assert-LMEntry` returns the same as the value of thie *main key*.
-
-## Processes
-
-- Type: `[hashtable[]]`
-- Default: `@()`
-- Function Tests: `Initialize-LMEntry`
-
-This is the list of processes to return with the mocked `Get-Process` call.
+Tell Pester if the server (defined in [Parameters](#parameters)) should exist.
