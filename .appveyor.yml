@@ -34,7 +34,7 @@ deploy:
   description: QuserObject v$(appveyor_build_version)
   provider: GitHub
   auth_token:
-    secure: 5J0ugv6ihHcLzt2sHc0rU2F+y/htAz8nVERuqPAdnbsYEdyFBJy8POMwWYMwHU4j
+    secure: Vw4SeFATUV5sFO3gPVSe4PRu8gtUqDxSYUHRfpH+Y2n4U65IKkcFyK1dN+j3ZQq0
   artifact: /.*\.zip/
   draft: false
   prerelease: true
