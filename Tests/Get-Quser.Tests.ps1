@@ -13,11 +13,11 @@ foreach ($example in $examples) {
         Name = $example.BaseName.Replace("$($testFile.BaseName).$verb", '').Replace('_', ' ')
     }
     Write-Verbose "Test: $($test | ConvertTo-Json)"
-    
+
     foreach ($exampleData in (Import-PowerShellDataFile -LiteralPath $example.FullName).GetEnumerator()) {
         $test.Add($exampleData.Name, $exampleData.Value)
     }
-    
+
     Write-Verbose "Test: $($test | ConvertTo-Json)"
     $tests.Add($test) | Out-Null
 }
@@ -47,7 +47,7 @@ Describe $testFile.Name {
                 [hashtable] $parameters = $test.Parameters
                 $serverNameCount = ($parameters.ServerName | Measure-Object).Count
                 $times = if ($serverNameCount) { $serverNameCount } else { 1 }
-    
+
                 It "Get-Quser" {
                     { Get-Quser @parameters } | Should Not Throw
                 }
@@ -63,7 +63,7 @@ Describe $testFile.Name {
                 $adComputer = Import-Clixml -LiteralPath (Join-Path -Path (Join-Path -Path $projectRoot -ChildPath 'Examples' -Resolve) -ChildPath $test.ADComputer -Resolve)
                 $serverNameCount = ($adComputer | Measure-Object).Count
                 $times = if ($serverNameCount) { $serverNameCount } else { 1 }
-    
+
                 It "Get-Quser" {
                     { $adComputer | Get-Quser } | Should Not Throw
                 }

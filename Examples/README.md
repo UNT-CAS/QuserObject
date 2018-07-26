@@ -46,28 +46,6 @@ The example file name follows a pattern: `%FunctionName%.%TestDescription%.psd1`
 
 For lack of a better term, I'm going to call each item in the hashtable a *main key*.
 
-## Parameters
-
-- Type: `[hashtable]`
-- Default: `$null`
-
-This is used for splatting into the function that we're testing.
-
-## GetDateNow
-
-- Type: `[strin]`
-- Function Tests: ``Get-Date``
-
-This specifies that `[DateTime]` that should be returned by the `Get-Date` function; for testing purposes.
-Normally, calling `Get-Date` will return the current date and time.
-
-## Output
-
-- Type: `[array]`
-- Function Tests: ``Get-Date``
-
-The expected output/return of the function based on the parameters used.
-
 ## ADComputer
 
 - Type: `[string]`
@@ -76,6 +54,28 @@ The expected output/return of the function based on the parameters used.
 If `[bool]` then we will ensure the test starts with an empty JSON (`$true`) or without a JSON at all (`$false`).
 
 If `[string]` then we will ensure the test starts with a JSON with the contents set to value of this variable.
+
+## GetDateNow
+
+- Type: `[strin]`
+- Function Tests: `Get-Date`, `Get-QuserIdleTime`
+
+This specifies that `[DateTime]` that should be returned by the `Get-Date` function; for testing purposes.
+Normally, calling `Get-Date` will return the current date and time.
+
+## Output
+
+- Type: `[array]`
+- Function Tests: `Get-QuserIdleTime`
+
+The expected output/return of the function based on the parameters used.
+
+## Parameters
+
+- Type: `[hashtable]`
+- Default: `$null`
+
+This is used for splatting into the function that we're testing.
 
 ## Pipeline
 

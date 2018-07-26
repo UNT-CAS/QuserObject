@@ -25,7 +25,7 @@ function Invoke-Quser {
         Write-Debug "[QuserObject Invoke-Quser] Process Bound Parameters: $($MyInvocation.BoundParameters | ConvertTo-Json)"
         Write-Debug "[QuserObject Invoke-Quser] Process Unbound Parameters: $($MyInvocation.UnboundParameters | ConvertTo-Json)"
 
-        $quser = if ($Server) { '{0} /SERVER:{1}' -f (Get-Command 'quser').Path, $Server } else { (Get-Command 'quser').Path }
+        $quser = '{0} /SERVER:{1}' -f (Get-Command 'quser').Path, $Server
         Write-Debug "[QuserObject Invoke-Quser] QUSER Command: ${quser}"
 
         try {
@@ -36,7 +36,10 @@ function Invoke-Quser {
         Write-Verbose "[QuserObject Invoke-Quser] QUSER Result (${LASTEXITCODE}):`n$($result | Out-String)"
 
         if ($LASTEXITCODE -eq 0) {
-            Write-Output $result
+            Write-Output @{
+                Server = $Server
+                Result       = $result
+            }
         } else {
             $message = if ($result.Exception) { $result.Exception.Message } else { $result }
             Write-Warning " ${Server}: $($message -join ', ')"

@@ -13,30 +13,47 @@ foreach ($example in $examples) {
         Name = $example.BaseName.Replace("$($testFile.BaseName).$verb", '').Replace('_', ' ')
     }
     Write-Verbose "Test: $($test | ConvertTo-Json)"
-    
+
     foreach ($exampleData in (Import-PowerShellDataFile -LiteralPath $example.FullName).GetEnumerator()) {
         $test.Add($exampleData.Name, $exampleData.Value)
     }
-    
+
     Write-Verbose "Test: $($test | ConvertTo-Json)"
     $tests.Add($test) | Out-Null
+}
+
+function Get-QuserIdleTime {
+    Write-Warning "Shouldn't ever see this message. Created this function for mocking purposes"
 }
 
 Describe $testFile.Name {
     foreach ($test in $tests) {
         Mock Get-Date {
-            # Write-Verbose "MOCK: Get-Date" -Verbose
-            # Write-Verbose "BoundParameters: $($MyInvocation.BoundParameters | Out-String)" -Verbose
-            # Write-Verbose "UnboundParameters: $($MyInvocation.UnboundParameters | Out-String)" -Verbose
+            <#
+                Only Mock if no parameters are supplied.
+                We're mocking `$now = Get-Date`
+            #>
             return ([System.DateTime] $test.GetDateNow)
         } -ParameterFilter { (-not ($MyInvocation.BoundParameters | Out-String).Trim()) -and (-not ($MyInvocation.UnboundParameters | Out-String).Trim()) }
 
-        Context $test.Name {
-            [hashtable] $parameters = $test.Parameters
+        [hashtable] $parameters = $test.Parameters
+
+        Context "$($test.Name) Parameters" {
+            BeforeEach {
+                Mock Get-QuserIdleTime {
+                    return $null
+                } -Verifiable
+            }
 
             It "ConvertTo-QuserObject Parameter" {
                 # $DebugPreference = 'Continue'
                 { $script:results = ConvertTo-QuserObject @parameters } | Should Not Throw
+            }
+
+            $times = ($test.Output | Measure-Object).Count
+
+            It "${i} IdleTime: Assert-MockCalled Get-QuserIdleTime: ${times}" {
+                Assert-MockCalled 'Get-QuserIdleTime' -Times $times -Exactly
             }
             # Write-Host "script:Result $(($script:results | Measure-Object).Count): $($script:results | Out-String)"
 
@@ -45,6 +62,14 @@ Describe $testFile.Name {
                 $testOutput = if (($test.Output | Measure-Object).Count -gt 1) { $test.Output[$i] } else { $test.Output }
                 # Write-Host "Result: $($result | Out-String)"
 
+                It "${i} Server Type: String" {
+                    $result.Server | Should BeOfType 'System.String'
+                }
+
+                It "${i} Server: $($testOutput.Server)" {
+                    $result.Server | Should Be $testOutput.Server
+                }
+
                 It "${i} Username Type: String" {
                     $result.Username | Should BeOfType 'System.String'
                 }
@@ -73,47 +98,50 @@ Describe $testFile.Name {
                     $result.State | Should BeOfType 'System.String'
                 }
 
-                It "${i} State Set: Active, Disconnected" {
-                    $result.State | Should BeIn @('Active', 'Disconnected')
-                }
-
                 It "${i} State: $($testOutput.State)" {
                     $result.State | Should Be $testOutput.State
                 }
 
-                if (-not $testOutput.IdleTime) {
-                    It "${i} IdleTime Type: Null" {
-                        $result.IdleTime | Should BeNullOrEmpty
-                    }
-                } else {
-                    It "${i} IdleTime Type: DateTime" {
-                        $result.IdleTime | Should BeOfType 'System.DateTime'
-                    }
-                }
-    
-                It "${i} IdleTime: $($testOutput.IdleTime)" {
-                    $result.IdleTime | Should Be $testOutput.IdleTime
+                It "${i} LogonTime Type: $($testOutput.LogonTime.Type)" {
+                    $result.LogonTime | Should BeOfType $testOutput.LogonTime.Type
                 }
 
-                It "${i} LogonTime Type: DateTime" {
-                    $result.LogonTime | Should BeOfType 'System.DateTime'
+                It "${i} LogonTime: $($testOutput.LogonTime.Value)" {
+                    $result.LogonTime | Should Be $testOutput.LogonTime.Value
                 }
+            }
+        }
 
-                It "${i} LogonTime: $($testOutput.LogonTime)" {
-                    $result.LogonTime | Should Be $testOutput.LogonTime
-                }
+        Context "$($test.Name) Pipeline" {
+            BeforeEach {
+                Mock Get-QuserIdleTime {
+                    return $null
+                } -Verifiable
             }
 
             It "ConvertTo-QuserObject Pipeline" {
                 { $script:results = $parameters.QuserOutput | ConvertTo-QuserObject } | Should Not Throw
             }
-            # Write-Host "script:Result: $($script:result | Out-String)"
+
+            $times = ($test.Output | Measure-Object).Count
+
+            It "${i} IdleTime: Assert-MockCalled Get-QuserIdleTime: ${times}" {
+                Assert-MockCalled 'Get-QuserIdleTime' -Times $times -Exactly
+            }
 
            for ($i = 0; $i -lt ($test.Output | Measure-Object).Count; $i++) {
                 $result = if (($script:results | Measure-Object).Count -gt 1) { $script:results[$i] } else { $script:results }
                 $testOutput = if (($test.Output | Measure-Object).Count -gt 1) { $test.Output[$i] } else { $test.Output }
                 # Write-Host "Result: $($result | Out-String)"
 
+                It "${i} Server Type: String" {
+                    $result.Server | Should BeOfType 'System.String'
+                }
+
+                It "${i} Server: $($testOutput.Server)" {
+                    $result.Server | Should Be $testOutput.Server
+                }
+
                 It "${i} Username Type: String" {
                     $result.Username | Should BeOfType 'System.String'
                 }
@@ -142,34 +170,16 @@ Describe $testFile.Name {
                     $result.State | Should BeOfType 'System.String'
                 }
 
-                It "${i} State Set: Active, Disconnected" {
-                    $result.State | Should BeIn @('Active', 'Disconnected')
-                }
-
                 It "${i} State: $($testOutput.State)" {
                     $result.State | Should Be $testOutput.State
                 }
 
-                if (-not $testOutput.IdleTime) {
-                    It "${i} IdleTime Type: Null" {
-                        $result.IdleTime | Should BeNullOrEmpty
-                    }
-                } else {
-                    It "${i} IdleTime Type: DateTime" {
-                        $result.IdleTime | Should BeOfType 'System.DateTime'
-                    }
-                }
-    
-                It "${i} IdleTime: $($testOutput.IdleTime)" {
-                    $result.IdleTime | Should Be $testOutput.IdleTime
+                It "${i} LogonTime Type: $($testOutput.LogonTime.Type)" {
+                    $result.LogonTime | Should BeOfType $testOutput.LogonTime.Type
                 }
 
-                It "${i} LogonTime Type: DateTime" {
-                    $result.LogonTime | Should BeOfType 'System.DateTime'
-                }
-
-                It "${i} LogonTime: $($testOutput.LogonTime)" {
-                    $result.LogonTime | Should Be $testOutput.LogonTime
+                It "${i} LogonTime: $($testOutput.LogonTime.Value)" {
+                    $result.LogonTime | Should Be $testOutput.LogonTime.Value
                 }
             }
         }

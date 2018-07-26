@@ -12,7 +12,7 @@ function ConvertTo-QuserObject {
     [OutputType([PSObject])]
     Param(
         [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
-        [string[]]
+        [hashtable]
         $QuserOutput
     )
 
@@ -25,8 +25,8 @@ function ConvertTo-QuserObject {
     process {
         Write-Debug "[QuserObject ConvertTo-QuserObject] Process Bound Parameters: $($MyInvocation.BoundParameters | ConvertTo-Json)"
         Write-Debug "[QuserObject ConvertTo-QuserObject] Process Unbound Parameters: $($MyInvocation.UnboundParameters | ConvertTo-Json)"
-        
-        ((($QuserOutput) -replace '^>', '') -replace '\s{2,}', ',').Trim() | ForEach-Object {
+
+        ((($QuserOutput.Result) -replace '^>', '') -replace '\s{2,}', ',').Trim() | ForEach-Object {
             Write-Debug "[QuserObject ConvertTo-QuserObject] Add Comma, if needed: $_"
             if ($_.Split(',').Count -eq 5) {
                 Write-Output ($_ -replace '(^[^,]+)', '$1,')
@@ -47,23 +47,12 @@ function ConvertTo-QuserObject {
                 # Id
                 [int] $rowParts[2] = $rowParts[2]
 
-                # State
-                if ($rowParts[3] -eq 'Disc') {
-                    $rowParts[3] = 'Disconnected'
-                }
-
                 # IdleTime
-                if ($rowParts[4] -eq '.' -or $rowParts[4] -eq 'none') {
-                    $rowParts[4] = $null
-                } else {
-                    $parts = $rowParts[4].Split('+:')
-                    $now = Get-Date
-                    if ($parts.Count -eq 3) {
-                        $rowParts[4] = $now.AddDays(-1 * $parts[0]).AddMinutes(-1 * $parts[1]).AddSeconds(-1 * $parts[2])
-                    } else {
-                        $rowParts[4] = $now.AddMinutes(-1 * $parts[0]).AddSeconds(-1 * $parts[1])
-                    }
+                $getQuserIdleTime = @{
+                    QuserIdleTime = $rowParts[4]
+                    AsDateTime    = $script:IdleStartTime
                 }
+                $rowParts[4] = Get-QuserIdleTime @getQuserIdleTime
 
                 # LogonTime
                 $rowParts[5] = Get-Date $rowParts[5]
@@ -73,12 +62,13 @@ function ConvertTo-QuserObject {
                 @($header, ($rowParts -join ',')) | ConvertFrom-Csv | ForEach-Object {
                     Write-Debug "[QuserObject ConvertTo-QuserObject] Pre Output ($(($_ | Measure-Object).Count)): $($_ | Out-String)"
                     $output = @{
-                        Username    = [string] $_.Username
-                        Sessionname = [string] $_.Sessionname
-                        Id          = [int]    $_.Id
-                        State       = [string] $_.State
-                        IdleTime    = if ($_.IdleTime -eq '') { $null } else { Get-Date $_.IdleTime }
-                        LogonTime   = Get-Date $_.LogonTime
+                        Server        = $QuserOutput.Server
+                        Username      = [string] $_.Username
+                        Sessionname   = [string] $_.Sessionname
+                        Id            = [int]    $_.Id
+                        State         = [string] $_.State
+                        IdleTime      = if (-not $_.IdleTime) { $null } else { Get-Date $_.IdleTime }
+                        LogonTime     = Get-Date $_.LogonTime
                     }
 
                     $newObject = New-Object PSObject -Property $output
