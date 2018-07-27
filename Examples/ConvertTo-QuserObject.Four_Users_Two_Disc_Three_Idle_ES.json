@@ -1,0 +1,45 @@
+{
+    "Parameters": {
+        "QuserOutput": {
+            "Server": "localhost",
+            "Result": [
+                " NOMBRE USUARIO        NOMBRE SESIÓN      ID. ESTADO  TIEMPO IN. TIEMPO SESIÓN",
+                ">mabe-b3               console             1  Activo      ninguno   7/25/2018 7:46 AM",
+                " otro00                                    2  Desc            2  7/25/2018 10:51 AM"
+            ]
+        }
+    },
+    "Culture": "es-EC",
+    "Output": [
+        {
+            "Server": "localhost",
+            "Username": "mabe-b3",
+            "Sessionname": "console",
+            "Id": 1,
+            "State": "Activo",
+            "IdleTime": {
+                "Type"        : "System.Void",
+                "Value"       : null
+            },
+            "LogonTime": {
+                "Type"        : "System.DateTime",
+                "Value"       : "07/25/2018 07:46:00"
+            }
+        },
+        {
+            "Server": "localhost",
+            "Username": "otro00",
+            "Sessionname": "",
+            "Id": 2,
+            "State": "Desc",
+            "IdleTime": {
+                "Type"        : "System.TimeSpan",
+                "Value"       : "0.00:02:00"
+            },
+            "LogonTime": {
+                "Type"        : "System.DateTime",
+                "Value"       : "07/25/2018 10:51:00"
+            }
+        }
+    ]
+}

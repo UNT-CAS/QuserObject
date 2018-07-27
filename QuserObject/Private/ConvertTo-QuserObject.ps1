@@ -11,7 +11,10 @@ function ConvertTo-QuserObject {
     [CmdletBinding()]
     [OutputType([PSObject])]
     Param(
-        [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
+        [Parameter(
+            ValueFromPipeline = $true,
+            Mandatory = $true
+        )]
         [hashtable]
         $QuserOutput
     )
@@ -26,6 +29,13 @@ function ConvertTo-QuserObject {
         Write-Debug "[QuserObject ConvertTo-QuserObject] Process Bound Parameters: $($MyInvocation.BoundParameters | ConvertTo-Json)"
         Write-Debug "[QuserObject ConvertTo-QuserObject] Process Unbound Parameters: $($MyInvocation.UnboundParameters | ConvertTo-Json)"
 
+        if ($script:Culture.Parent.Name -and $script:Culture.Parent -eq 'es') {
+            Write-Debug "[QuserObject ConvertTo-QuserObject] Culture Adjustements: ${script:Culture}"
+            $QuserOutput.Result[0] = $QuserOutput.Result[0].Replace('.', ' ')
+        }
+
+        Write-Debug "[QuserObject ConvertTo-QuserObject] QuserOutput.Result: $($QuserOutput.Result | Out-String)"
+
         ((($QuserOutput.Result) -replace '^>', '') -replace '\s{2,}', ',').Trim() | ForEach-Object {
             Write-Debug "[QuserObject ConvertTo-QuserObject] Add Comma, if needed: $_"
             if ($_.Split(',').Count -eq 5) {
@@ -39,37 +49,45 @@ function ConvertTo-QuserObject {
             if (-not $header) {
                 [System.Collections.ArrayList] $parts = @()
                 foreach ($part in $rowParts) {
-                    $parts.Add((Get-Culture).TextInfo.ToTitleCase($part.ToLower()).Replace(' ', '')) | Out-Null
+                    $parts.Add($script:Culture.TextInfo.ToTitleCase($part.ToLower()).Replace(' ', '')) | Out-Null
                 }
                 $header = ($parts -join ',')
                 Write-Debug "[QuserObject ConvertTo-QuserObject] Processed Header Row"
             } else {
-                # Id
-                [int] $rowParts[2] = $rowParts[2]
-
                 # IdleTime
                 $getQuserIdleTime = @{
                     QuserIdleTime = $rowParts[4]
                     AsDateTime    = $script:IdleStartTime
                 }
-                $rowParts[4] = Get-QuserIdleTime @getQuserIdleTime
-
-                # LogonTime
-                $rowParts[5] = Get-Date $rowParts[5]
 
                 Write-Debug "[QuserObject ConvertTo-QuserObject] Processed Row: $($rowParts -join ',') "
 
                 @($header, ($rowParts -join ',')) | ConvertFrom-Csv | ForEach-Object {
                     Write-Debug "[QuserObject ConvertTo-QuserObject] Pre Output ($(($_ | Measure-Object).Count)): $($_ | Out-String)"
-                    $output = @{
-                        Server        = $QuserOutput.Server
-                        Username      = [string] $_.Username
-                        Sessionname   = [string] $_.Sessionname
-                        Id            = [int]    $_.Id
-                        State         = [string] $_.State
-                        IdleTime      = if (-not $_.IdleTime) { $null } else { Get-Date $_.IdleTime }
-                        LogonTime     = Get-Date $_.LogonTime
-                    }
+
+                    $output = @{}
+
+                    Write-Debug "[QuserObject ConvertTo-QuserObject] Server ($($script:CultureText.Server)): $($QuserOutput.Server)"
+                    $output.Add('Server',      ($QuserOutput.Server))
+
+                    Write-Debug "[QuserObject ConvertTo-QuserObject] Username ($($script:CultureText.Username)): $(([string] $_.$($script:CultureText.Username)))"
+                    $output.Add('Username',    ([string] $_.$($script:CultureText.Username)))
+
+                    Write-Debug "[QuserObject ConvertTo-QuserObject] Sessionname ($($script:CultureText.Sessionname)): $(([string] $_.$($script:CultureText.Sessionname)))"
+                    $output.Add('Sessionname', ([string] $_.$($script:CultureText.Sessionname)))
+
+                    Write-Debug "[QuserObject ConvertTo-QuserObject] Id ($($script:CultureText.Id)): $(([int]    $_.$($script:CultureText.Id)))"
+                    $output.Add('Id',          ([int]    $_.$($script:CultureText.Id)))
+
+                    Write-Debug "[QuserObject ConvertTo-QuserObject] State ($($script:CultureText.State)): $(([string] $_.$($script:CultureText.State)))"
+                    $output.Add('State',       ([string] $_.$($script:CultureText.State)))
+
+                    $quserIdleTime = Get-QuserIdleTime @getQuserIdleTime
+                    Write-Debug "[QuserObject ConvertTo-QuserObject] IdleTime ($($script:CultureText.IdleTime)): ${quserIdleTime}"
+                    $output.Add('IdleTime',    $quserIdleTime)
+
+                    Write-Debug "[QuserObject ConvertTo-QuserObject] LogonTime ($($script:CultureText.LogonTime)): $((Get-Date $_.$($script:CultureText.LogonTime)))"
+                    $output.Add('LogonTime',   (Get-Date $_.$($script:CultureText.LogonTime)))
 
                     $newObject = New-Object PSObject -Property $output
                     $newObject.PSTypeNames.Insert(0, 'QuserObject')

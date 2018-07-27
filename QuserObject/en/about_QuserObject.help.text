@@ -1,0 +1,18 @@
+PSTOPIC
+    about_QuserObject
+
+SHORT DESCRIPTION
+    Run `quser.exe` and return a proper PowerShell Object.
+
+LONG DESCRIPTION
+    Run `quser.exe` and return a proper PowerShell Object.
+    I discussed this on my blog to enhance a StackOverflow answer.
+    I thought I'd make this into a PowerShell module for ease of use and distribution.
+
+DETAILED DESCRIPTION
+    Run `quser.exe` and return a proper PowerShell Object.
+    I discussed this on my blog to enhance a StackOverflow answer.
+    I thought I'd make this into a PowerShell module for ease of use and distribution.
+    
+    You can find documentation here:
+        https://github.com/UNT-CAS/QuserObject

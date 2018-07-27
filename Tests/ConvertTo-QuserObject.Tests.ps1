@@ -5,16 +5,52 @@
 [IO.FileInfo]      $testFile = Join-Path -Path $projectDirectory -ChildPath (Join-Path -Path 'Private' -ChildPath ($pesterFile.Name -replace '\.Tests\.', '.')) -Resolve
 . $testFile
 
-[System.Collections.ArrayList] $tests = @()
-$examples = Get-ChildItem (Join-Path -Path $projectRoot -ChildPath 'Examples' -Resolve) -Filter "$($testFile.BaseName).*.psd1" -File
+function ConvertTo-HashtableFromPsobject {
+    param (
+        [Parameter(ValueFromPipeline)]
+        $InputObject
+    )
 
-foreach ($example in $examples) {
+    process {
+        if ($null -eq $InputObject) { return $null }
+
+        if ($InputObject -is [System.Collections.IEnumerable] -and $InputObject -isnot [string]) {
+            $collection = @(
+                foreach ($object in $InputObject) { ConvertTo-HashtableFromPsobject $object }
+            )
+
+            Write-Output -NoEnumerate $collection
+        } elseif ($InputObject -is [psobject]) {
+            $hash = @{}
+
+            foreach ($property in $InputObject.PSObject.Properties) {
+                $hash[$property.Name] = ConvertTo-HashtableFromPsobject $property.Value
+            }
+
+            $hash
+        } else {
+            $InputObject
+        }
+    }
+}
+
+[System.Collections.ArrayList] $tests = @()
+$examplesPsd1 = @( Get-ChildItem (Join-Path -Path $projectRoot -ChildPath 'Examples' -Resolve) -Filter "$($testFile.BaseName).*.psd1" -File )
+$examplesJson = @( Get-ChildItem (Join-Path -Path $projectRoot -ChildPath 'Examples' -Resolve) -Filter "$($testFile.BaseName).*.json" -File )
+
+foreach ($example in ($examplesPsd1 + $examplesJson)) {
     [hashtable] $test = @{
         Name = $example.BaseName.Replace("$($testFile.BaseName).$verb", '').Replace('_', ' ')
     }
     Write-Verbose "Test: $($test | ConvertTo-Json)"
 
-    foreach ($exampleData in (Import-PowerShellDataFile -LiteralPath $example.FullName).GetEnumerator()) {
+    if ($example.Extension -eq '.psd1') {
+        $exampleContents = Import-PowerShellDataFile -LiteralPath $example.FullName
+    } else { # JSON
+        $exampleContents = Get-Content -Path $example.FullName -Encoding UTF8 | Out-String | ConvertFrom-Json | ConvertTo-HashtableFromPsobject
+    }
+
+    foreach ($exampleData in $exampleContents.GetEnumerator()) {
         $test.Add($exampleData.Name, $exampleData.Value)
     }
 
@@ -38,12 +74,25 @@ Describe $testFile.Name {
 
         [hashtable] $parameters = $test.Parameters
 
+        if (-not $test.Culture) {
+            $test.Culture = 'en'
+        }
+
+        $script:Culture = [System.Globalization.CultureInfo]::GetCultureInfo($test.Culture)
+        if (-not ($script:CultureText = Import-LocalizedData -UICulture $script:Culture -BaseDirectory $projectDirectory -FileName 'culture.psd1' -ErrorAction SilentlyContinue)) {
+            $script:Culture = [System.Globalization.CultureInfo]::GetCultureInfo('en')
+            $script:CultureText = Import-LocalizedData -UICulture $script:Culture -BaseDirectory $projectDirectory -FileName 'culture.psd1'
+        }
+
         Context "$($test.Name) Parameters" {
             BeforeEach {
                 Mock Get-QuserIdleTime {
                     return $null
                 } -Verifiable
             }
+
+            $script:results = $null
+            Write-Host "`tCulture: ${script:Culture}"
 
             It "ConvertTo-QuserObject Parameter" {
                 # $DebugPreference = 'Continue'
@@ -118,6 +167,9 @@ Describe $testFile.Name {
                     return $null
                 } -Verifiable
             }
+
+            $script:results = $null
+            Write-Host "`tCulture: ${script:Culture}"
 
             It "ConvertTo-QuserObject Pipeline" {
                 { $script:results = $parameters.QuserOutput | ConvertTo-QuserObject } | Should Not Throw
