@@ -85,9 +85,9 @@ function Get-Quser {
         Write-Debug "[QuserObject Get-Quser] Process Unbound Parameters: $($MyInvocation.UnboundParameters | ConvertTo-Json)"
 
         if ($AdComputer) {
-            $AdComputer.$Property | Invoke-Quser | ConvertTo-QuserObject
+            Write-Output s($AdComputer.$Property | Invoke-Quser | ConvertTo-QuserObject)
         } else {
-            $Server | Invoke-Quser | ConvertTo-QuserObject
+            Write-Output s($Server | Invoke-Quser | ConvertTo-QuserObject)
         }
     }
 }

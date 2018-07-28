@@ -25,9 +25,10 @@ foreach ($example in $examples) {
 Describe $testFile.Name {
     foreach ($test in $tests) {
         Mock Get-Date {
-            # Write-Verbose "MOCK: Get-Date" -Verbose
-            # Write-Verbose "BoundParameters: $($MyInvocation.BoundParameters | Out-String)" -Verbose
-            # Write-Verbose "UnboundParameters: $($MyInvocation.UnboundParameters | Out-String)" -Verbose
+            <#
+                Only Mock if no parameters are supplied.
+                We're mocking `$now = Get-Date`
+            #>
             return ([System.DateTime] $test.GetDateNow)
         } -ParameterFilter { (-not ($MyInvocation.BoundParameters | Out-String).Trim()) -and (-not ($MyInvocation.UnboundParameters | Out-String).Trim()) }
 
