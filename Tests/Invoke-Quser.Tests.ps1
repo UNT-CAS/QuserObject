@@ -24,6 +24,10 @@ foreach ($example in $examples) {
 
 Describe $testFile.Name {
     foreach ($test in $tests) {
+        Mock Get-Culture {
+            return [Globaliztion.CultureInfo]::GetCultureInfo($test.GetCulture)
+        }
+
         Remove-Variable -Scope 'Script' -Name 'quserOutput' -Force -ErrorAction SilentlyContinue
 
         Context $test.Name {
