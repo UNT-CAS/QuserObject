@@ -42,6 +42,7 @@
 function Get-Quser {
     [CmdletBinding(DefaultParameterSetName = 'Server')]
     [OutputType([PSObject])]
+    [Alias('Get-LoggedOnUsers')]
     Param(
         [Parameter(
             ParameterSetName = 'Server',
@@ -85,9 +86,9 @@ function Get-Quser {
         Write-Debug "[QuserObject Get-Quser] Process Unbound Parameters: $($MyInvocation.UnboundParameters | ConvertTo-Json)"
 
         if ($AdComputer) {
-            Write-Output s($AdComputer.$Property | Invoke-Quser | ConvertTo-QuserObject)
+            Write-Output ($AdComputer.$Property | Invoke-Quser | ConvertTo-QuserObject)
         } else {
-            Write-Output s($Server | Invoke-Quser | ConvertTo-QuserObject)
+            Write-Output ($Server | Invoke-Quser | ConvertTo-QuserObject)
         }
     }
 }

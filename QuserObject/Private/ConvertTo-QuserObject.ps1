@@ -86,8 +86,8 @@ function ConvertTo-QuserObject {
                     Write-Debug "[QuserObject ConvertTo-QuserObject] IdleTime ($($script:CultureText.IdleTime)): ${quserIdleTime}"
                     $output.Add('IdleTime',    $quserIdleTime)
 
-                    Write-Debug "[QuserObject ConvertTo-QuserObject] LogonTime ($($script:CultureText.LogonTime)): $((Get-Date $_.$($script:CultureText.LogonTime)))"
-                    $output.Add('LogonTime',   (Get-Date $_.$($script:CultureText.LogonTime)))
+                    Write-Debug "[QuserObject ConvertTo-QuserObject] LogonTime ($($script:CultureText.LogonTime)): $(([DateTime] $_.$($script:CultureText.LogonTime)))"
+                    $output.Add('LogonTime',   ([DateTime] $_.$($script:CultureText.LogonTime)))
 
                     $newObject = New-Object PSObject -Property $output
                     $newObject.PSTypeNames.Insert(0, 'QuserObject')
