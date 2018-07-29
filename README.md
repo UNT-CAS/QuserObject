@@ -18,7 +18,7 @@ I thought I'd make this into a PowerShell module for ease of use and distributio
 The `quser.exe` program displays information about users logged on to the system.
 The `quser.exe` program is already available on your Windows desktop and server OSs.
 
-*Considerations have been  made to keep things [language agnostic](#3).*
+*Considerations have been  made to keep things [language agnostic](/UNT-CAS/QuserObject/issues/3).*
 
 ## Quser Usage
 
