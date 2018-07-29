@@ -40,14 +40,14 @@ The parsing has already been done for you:
 
 ```powershell
 PS > Get-Quser
-                                     
-Server      : localhost              
-Username    : vertigoray             
-Sessionname : console                
-Id          : 1                      
-State       : Active                 
-IdleTime    : 03:11:00               
-LogonTime   : 7/26/2018 7:29:00 PM   
+
+Server      : localhost
+Username    : vertigoray
+Sessionname : console
+Id          : 1
+State       : Active
+IdleTime    : 03:11:00
+LogonTime   : 7/26/2018 7:29:00 PM
 ```
 
 ## QuserObject Types
