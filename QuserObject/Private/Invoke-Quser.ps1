@@ -38,7 +38,7 @@ function Invoke-Quser {
         } catch {
             $result = $Error[0].Exception.Message
         }
-        Write-Verbose "[QuserObject Invoke-Quser] QUSER Result (${LASTEXITCODE}):`n$($result | Out-String)"
+        Write-Verbose "[QuserObject Invoke-Quser] QUSER Result (ExitCode: ${LASTEXITCODE}):`n$($result | Out-String)"
 
         if ($currentCulture) {
             $currentCulture | Set-Culture
