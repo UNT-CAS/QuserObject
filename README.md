@@ -1,7 +1,7 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/d88b15ilqgkqgo4e?svg=true)](https://ci.appveyor.com/project/VertigoRay/quserobject)
 [![codecov](https://codecov.io/gh/UNT-CAS/QuserObject/branch/master/graph/badge.svg)](https://codecov.io/gh/UNT-CAS/QuserObject)
 [![version](https://img.shields.io/powershellgallery/v/QuserObject.svg)](https://www.powershellgallery.com/packages/QuserObject)
-[![downloads](https://img.shields.io/powershellgallery/dt/QuserObject.svg?label=downloads)](https://www.powershellgallery.com/packages/QuserObject)
+[![downloads](https://img.shields.io/powershellgallery/dt/QuserObject.svg?label=downloads)](https://www.powershellgallery.com/stats/packages/QuserObject?groupby=Version)
 
 Run `quser.exe` and return a proper PowerShell Object.
 I discussed this [on my blog](http://blog.vertigion.com/2018/04/27/terminal_server_sessions/?utm_source=github&utm_medium=unt-cas&utm_campaign=quserobject) to enhance [a StackOverflow answer](https://stackoverflow.com/a/49042770/615422).
