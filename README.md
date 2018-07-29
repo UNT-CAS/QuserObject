@@ -52,7 +52,7 @@ LogonTime   : 7/26/2018 7:29:00 PM
 
 ## QuserObject Types
 
-This output is a `[PSObject]`, and can be use progrmatically.
+This output is a `[PSObject]`, and can be used programmatically.
 Here's an example that shows you the types of each returne property:
 
 ```powershell
