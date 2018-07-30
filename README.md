@@ -53,7 +53,7 @@ LogonTime   : 7/26/2018 7:29:00 PM
 ## QuserObject Types
 
 This output is a `[PSObject]`, and can be used programmatically.
-Here's an example that shows you the types of each returne property:
+Here's an example that shows you the types of each returned property:
 
 ```powershell
 PS > Get-Quser | %{ $_.PSObject.Properties | %{ "{0,15}: [{1,-15}] {2}" -f $_.Name, $_.Value.GetType().FullName, $_.Value } }
@@ -105,7 +105,7 @@ Assume `quser.exe` returns an idle time of `3+04:05`, and the `[datetime]` when 
 The return `IdleTime` property will be different depending on whether or not this parameter is set:
 
 - Parameter Not Set: `[System.TimeSpan] '3.04:05:00'`
-- Parameter Is Set: `[System.DateTime] '07/29/2018 07:56:00`
+- Parameter Is Set: `[System.DateTime] '07/29/2018 07:56:00'`
 
 ## AdComputer
 
