@@ -1,7 +1,7 @@
 <#
     .Synopsis
 
-        This is the MAIN script. This script watches for events and sends found events to Invoke-LMEvent for handling.
+        This converts quser idletime to something useful.
 
     .Parameter QuserIdleTime
 
