@@ -1,7 +1,7 @@
 <#
     .Synopsis
 
-        This is the MAIN script. This script watches for events and sends found events to Invoke-LMEvent for handling.
+        This processes the STDOUT from `quser.exe` and returns an object.
 
     .Parameter QuserOutput
 
