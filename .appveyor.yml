@@ -29,18 +29,18 @@ build_script:
 
 
 
-deploy:
-  release: v$(APPVEYOR_BUILD_VERSION)
-  description: QuserObject v$(appveyor_build_version)
-  provider: GitHub
-  auth_token:
-    secure: Vw4SeFATUV5sFO3gPVSe4PRu8gtUqDxSYUHRfpH+Y2n4U65IKkcFyK1dN+j3ZQq0
-  artifact: /.*\.zip/
-  draft: false
-  prerelease: true
-  on:
-    branch: master                 # release from master branch only
-    APPVEYOR_REPO_TAG: true        # deploy except on tag push only
+# deploy:
+#   release: v$(APPVEYOR_BUILD_VERSION)
+#   description: QuserObject v$(appveyor_build_version)
+#   provider: GitHub
+#   auth_token:
+#     secure: Vw4SeFATUV5sFO3gPVSe4PRu8gtUqDxSYUHRfpH+Y2n4U65IKkcFyK1dN+j3ZQq0
+#   artifact: /.*\.zip/
+#   draft: false
+#   prerelease: true
+#   on:
+#     branch: master                 # release from master branch only
+#     APPVEYOR_REPO_TAG: true        # deploy except on tag push only
 
 
 
