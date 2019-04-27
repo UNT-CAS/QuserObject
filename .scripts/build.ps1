@@ -38,7 +38,7 @@ $script:Manifest_ModuleName = $null
 $script:ParentModulePath = $null
 $script:ResourceModulePath = $null
 $script:SystemModuleLocation = $null
-$script:DependsBootstrap = if ($Properties.Keys -contains 'SkipBootstrap' -and $Properties.SkipBootstrap) { $null } else { 'Bootstrap' }
+$script:DependsBootstrap = if ($Properties.Keys -contains 'SkipBootstrap' -and $Properties.SkipBootstrap) { '' } else { 'Bootstrap' }
 $script:VersionBuild = $null
 
 if (-not $env:CI) {
@@ -51,7 +51,7 @@ if (($env:CI -ne 'True') -and ($env:APPVEYOR -ne 'True')) {
     function Add-AppveyorMessage { param($Message) Write-Host "[BUILD Add-AppveyorMessage] ${Message}" -ForegroundColor Magenta }
 }
 
-Write-Host "[BUILD] Properties Keys: $($Properties.Keys -join ', ')" -ForegroundColor Magenta
+Write-Host "[BUILD] Properties.Keys: $($Properties.Keys -join ', ')" -ForegroundColor Magenta
 Write-Host "[BUILD] Properties.SkipBootstrap: $($Properties.SkipBootstrap)" -ForegroundColor Magenta
 Write-Host "[BUILD] DependsBootstrap: ${script:DependsBootstrap}" -ForegroundColor Magenta
 
@@ -185,8 +185,19 @@ Task TestModule -Description "Run Pester Tests and CoeCoverage" -Depends Install
         OutputFile   = ([IO.FileInfo] '{0}\dev\CodeCoverage.xml' -f $PSScriptRootParent)
     }
     Write-Host "[BUILD TestModule] Invoke-Pester $($invokePester | ConvertTo-Json)" -ForegroundColor Magenta
-    $res = Invoke-Pester @invokePester
-    # Write-Host "[BUILD TestModule] Pester Result: $($res | ConvertTo-Json)" -ForegroundColor Magenta
+    if (Test-Path "$($invokePester.Path)\cultures.json") {
+        $invokePester.Add('EnableExit', $true)
+        $currentCulture = Get-Culture
+        foreach ($culture in (Get-Content "$($invokePester.Path)\cultures.json" | ConvertFrom-Json)) {
+            Set-Culture -CultureInfo $culture
+            $res = powershell.exe Invoke-Pester @invokePester
+            # Write-Host "[BUILD TestModule] Pester Result: $($res | ConvertTo-Json)" -ForegroundColor Magenta
+        }
+        Set-Culture -CultureInfo $currentCulture
+    } else {
+        $res = Invoke-Pester @invokePester
+        # Write-Host "[BUILD TestModule] Pester Result: $($res | ConvertTo-Json)" -ForegroundColor Magenta
+    }
     
     $exportCodeCovIoJson = @{
         CodeCoverage = $res.CodeCoverage
