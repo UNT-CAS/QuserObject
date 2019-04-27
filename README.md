@@ -41,13 +41,14 @@ The parsing has already been done for you:
 ```powershell
 PS > Get-Quser
 
-Server      : localhost
-Username    : vertigoray
-Sessionname : console
-Id          : 1
-State       : Active
-IdleTime    : 03:11:00
-LogonTime   : 7/26/2018 7:29:00 PM
+Server           : localhost
+Username         : vertigoray
+IsCurrentSession : True
+Sessionname      : console
+Id               : 1
+State            : Active
+IdleTime         : 03:11:00
+LogonTime        : 7/26/2018 7:29:00 PM
 ```
 
 ## QuserObject Types
@@ -56,15 +57,16 @@ This output is a `[PSObject]`, and can be used programmatically.
 Here's an example that shows you the types of each returned property:
 
 ```powershell
-PS > Get-Quser | %{ $_.PSObject.Properties | %{ "{0,15}: [{1,-15}] {2}" -f $_.Name, $_.Value.GetType().FullName, $_.Value } }
+PS > Get-Quser | %{ $_.PSObject.Properties | %{ "{0,16}: [{1,-15}] {2}" -f $_.Name, $_.Value.GetType().FullName, $_.Value } }
 
-         Server: [System.String  ] localhost
-       Username: [System.String  ] vertigoray
-    Sessionname: [System.String  ] console
-             Id: [System.Int32   ] 1
-          State: [System.String  ] Active
-       IdleTime: [System.TimeSpan] 03:11:00
-      LogonTime: [System.DateTime] 7/26/2018 7:29:00 PM
+          Server: [System.String  ] localhost
+        Username: [System.String  ] vertigoray
+IsCurrentSession: [System.Boolean ] True
+     Sessionname: [System.String  ] console
+              Id: [System.Int32   ] 1
+           State: [System.String  ] Active
+        IdleTime: [System.TimeSpan] 03:11:00
+       LogonTime: [System.DateTime] 7/26/2018 7:29:00 PM
 ```
 
 ## `Get-LoggedOnUsers` Alias
