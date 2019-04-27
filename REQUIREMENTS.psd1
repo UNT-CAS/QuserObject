@@ -8,11 +8,11 @@
         Target         = '$PWD\.scripts\requirements.prep.ps1'
         DependsOn      = @('powershell-yaml')
     }
-    'Pester'           = 'latest'  # Tested with: 4.3.1
-    'powershell-yaml'  = 'latest'  # Tested with: 0.3.2
-    'psake'            = 'latest'  # Tested with: 4.7.0
-    'PSDeploy'         = 'latest'  # Tested with: 0.2.3
-    'PSScriptAnalyzer' = 'latest'  # Tested with: 1.11.0
+    'Pester'           = '4.6.0'
+    'powershell-yaml'  = '0.3.2'
+    'psake'            = '4.7.0'
+    'PSDeploy'         = '0.2.3'
+    'PSScriptAnalyzer' = '1.11.0'
     'CodeCovIo.psm1'   = @{
         DependencyType = 'FileDownload'
         Source         = 'https://raw.githubusercontent.com/aaronpowell/ps-nvm/6457fd9d7b94b109b7cccbe538758081b3804a05/.scripts/CodeCovIo.psm1'

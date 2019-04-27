@@ -38,7 +38,7 @@ $script:Manifest_ModuleName = $null
 $script:ParentModulePath = $null
 $script:ResourceModulePath = $null
 $script:SystemModuleLocation = $null
-$script:DependsBootstrap = if ($Properties.Keys -contains 'SkipBootstrap' -and $Properties.SkipBootstrap) { '' } else { 'Bootstrap' }
+$script:DependsBootstrap = if ($Properties.Keys -contains 'SkipBootstrap' -and $Properties.SkipBootstrap) { $null } else { 'Bootstrap' }
 $script:VersionBuild = $null
 
 if (-not $env:CI) {
