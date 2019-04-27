@@ -25,13 +25,14 @@ function Invoke-Quser {
         Write-Debug "[QuserObject Invoke-Quser] Process Bound Parameters: $($MyInvocation.BoundParameters | ConvertTo-Json)"
         Write-Debug "[QuserObject Invoke-Quser] Process Unbound Parameters: $($MyInvocation.UnboundParameters | ConvertTo-Json)"
 
-        $quser = '{0} /SERVER:{1}' -f (Get-Command 'quser').Path, $Server
-        Write-Debug "[QuserObject Invoke-Quser] QUSER Command: ${quser}"
-
-        if ((Get-Culture) -ne 'en-US') {
-            $currentCulture = Get-Culture
-            Set-Culture -CultureInfo 'en-US'
+        if ($Server -eq 'localhost') {
+            $cmd = '{0}'
+        } else {
+            $cmd = '{0} /SERVER:{1}'
         }
+        
+        $quser = $cmd -f (Get-Command 'quser').Path, $Server
+        Write-Debug "[QuserObject Invoke-Quser] QUSER Command: ${quser}"
 
         try {
             $result = (Invoke-Expression $quser) 2>&1
@@ -40,14 +41,10 @@ function Invoke-Quser {
         }
         Write-Verbose "[QuserObject Invoke-Quser] QUSER Result (ExitCode: ${LASTEXITCODE}):`n$($result | Out-String)"
 
-        if ($currentCulture) {
-            $currentCulture | Set-Culture
-        }
-
         if ($LASTEXITCODE -eq 0) {
             Write-Output @{
                 Server = $Server
-                Result       = $result
+                Result = $result
             }
         } else {
             $message = if ($result.Exception) { $result.Exception.Message } else { $result }

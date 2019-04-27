@@ -64,17 +64,17 @@ function Get-QuserIdleTime {
 
 Describe $testFile.Name {
     foreach ($test in $tests) {
-        [hashtable] $parameters = $test.Parameters
-
         if (-not $test.Culture) {
-            $test.Culture = 'en'
+            $test.Culture = 'en-US'
+        }
+        Write-Host "`tCulture: $(Get-Culture)" -ForegroundColor Cyan
+        Write-Host "`tTest Culture: $($test.Culture)" -ForegroundColor Cyan
+        
+        if ((Get-Culture) -ne $test.Culture) {
+            break
         }
 
-        $script:Culture = [System.Globalization.CultureInfo]::GetCultureInfo($test.Culture)
-        if (-not ($script:CultureText = Import-LocalizedData -UICulture $script:Culture -BaseDirectory $projectDirectory -FileName 'culture.psd1' -ErrorAction SilentlyContinue)) {
-            $script:Culture = [System.Globalization.CultureInfo]::GetCultureInfo('en')
-            $script:CultureText = Import-LocalizedData -UICulture $script:Culture -BaseDirectory $projectDirectory -FileName 'culture.psd1'
-        }
+        [hashtable] $parameters = $test.Parameters
 
         Context "$($test.Name) Parameters" {
             BeforeEach {
@@ -84,7 +84,6 @@ Describe $testFile.Name {
             }
 
             $script:results = $null
-            Write-Host "`tCulture: ${script:Culture}"
 
             It "ConvertTo-QuserObject Parameter" {
                 # $DebugPreference = 'Continue'
@@ -161,7 +160,6 @@ Describe $testFile.Name {
             }
 
             $script:results = $null
-            Write-Host "`tCulture: ${script:Culture}"
 
             It "ConvertTo-QuserObject Pipeline" {
                 { $script:results = $parameters.QuserOutput | ConvertTo-QuserObject } | Should Not Throw
