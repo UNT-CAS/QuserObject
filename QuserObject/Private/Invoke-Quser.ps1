@@ -6,6 +6,10 @@
     .Parameter Server
 
         A server to target. No validation or reachability testing is done.
+
+    .Parameter UserOrSession
+
+        Optional username, sessionname or sessionid to pass on to QUser.exe.
 #>
 function Invoke-Quser {
     [CmdletBinding()]
@@ -13,7 +17,10 @@ function Invoke-Quser {
     Param(
         [Parameter(ValueFromPipeline)]
         [string]
-        $Server
+        $Server,
+
+        [string]
+        $UserOrSession = ''
     )
 
     begin {
@@ -26,12 +33,14 @@ function Invoke-Quser {
         Write-Debug "[QuserObject Invoke-Quser] Process Unbound Parameters: $($MyInvocation.UnboundParameters | ConvertTo-Json)"
 
         if ($Server -eq 'localhost') {
-            $cmd = '{0}'
+            $cmd = '{0}{1}'
         } else {
-            $cmd = '{0} /SERVER:{1}'
+            $cmd = '{0}{1} /SERVER:{2}'
         }
-        
-        $quser = $cmd -f (Get-Command 'quser').Path, $Server
+
+        # crude conditional add of sapce
+        if ($UserOrSession) { $UserOrSession = ' ' + $UserOrSession }
+        $quser = $cmd -f (Get-Command 'quser').Path, $UserOrSession, $Server
         Write-Debug "[QuserObject Invoke-Quser] QUSER Command: ${quser}"
 
         try {

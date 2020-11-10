@@ -13,6 +13,10 @@
 
         Setting this switch will return IdleTime as [datetime] of when idleness started.
 
+    .Parameter UserOrSession
+
+        Optional username, sessionname or sessionid to pass on to QUser.exe.
+
     .Parameter AdComputer
 
         The AD computer object of the server to be queried.
@@ -30,6 +34,10 @@
     .Example
 
         Get-Quser -Server 'ThisServer'
+
+    .Example
+
+        Get-Quser -Server 'ThisServer' -UserOrSession 'Administrator'
 
     .Example
 
@@ -59,6 +67,10 @@ function Get-Quser {
         [switch]
         $IdleStartTime,
 
+        [Alias('UserName', 'SessionName', 'SessionId')]
+        [string]
+        $UserOrSession = '',
+
         [Parameter(
             ParameterSetName = 'AdComputer',
             ValueFromPipeline = $true,
@@ -86,9 +98,9 @@ function Get-Quser {
         Write-Debug "[QuserObject Get-Quser] Process Unbound Parameters: $($MyInvocation.UnboundParameters | ConvertTo-Json)"
 
         if ($AdComputer) {
-            Write-Output ($AdComputer.$Property | Invoke-Quser | ConvertTo-QuserObject)
+            Write-Output ($AdComputer.$Property | Invoke-Quser -UserOrSession $UserOrSession | ConvertTo-QuserObject)
         } else {
-            Write-Output ($Server | Invoke-Quser | ConvertTo-QuserObject)
+            Write-Output ($Server | Invoke-Quser -UserOrSession $UserOrSession | ConvertTo-QuserObject)
         }
     }
 }
