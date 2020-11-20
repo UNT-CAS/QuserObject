@@ -35,7 +35,7 @@ function Invoke-Quser {
         if ($Server -eq 'localhost') {
             $cmd = '{0}{1}'
         } else {
-            $cmd = '{0}{1} /SERVER:{2}'
+            $cmd = '{0} {1} /SERVER:{2}'
         }
 
         $quser = $cmd -f (Get-Command 'quser').Path, $UserOrSession, $Server
