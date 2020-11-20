@@ -65,6 +65,7 @@ Properties {
     # Manipulate the Parameters for usage:
     
     $script:Manifest.Copyright = $script:Manifest.Copyright -f [DateTime]::Now.Year
+    $script:Manifest.CmdletsToExport = (Get-ChildItem -Path ('{0}\*.ps1' -f [IO.Path]::Join($script:PSScriptRootParent, $script:thisModuleName, 'Public')) -ErrorAction SilentlyContinue).BaseName
 
     $script:Manifest_ModuleName = $script:Manifest.ModuleName
     $script:Manifest.Remove('ModuleName')
