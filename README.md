@@ -114,7 +114,7 @@ The return `IdleTime` property will be different depending on whether or not thi
 - Type: `[string]`
 - Default: ``
 
-Optional username, sessionname or sessionid to pass on to QUser.exe.
+Optional username, sessionname, or sessionid to pass on to `quser.exe`.
 
 ## AdComputer
 
