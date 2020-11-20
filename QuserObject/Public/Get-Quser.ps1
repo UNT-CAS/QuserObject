@@ -15,7 +15,7 @@
 
     .Parameter UserOrSession
 
-        Optional username, sessionname or sessionid to pass on to QUser.exe.
+        Optional username, sessionname, or sessionid to pass on to `quser.exe`.
 
     .Parameter AdComputer
 
