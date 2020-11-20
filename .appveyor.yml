@@ -1,6 +1,6 @@
 image: WMF 5
 
-version: 0.2.{build}
+version: 1.0.{build}
 
 # Skip on updates to the readme.
 # We can force this by adding [skip ci] or [ci skip] anywhere in commit message 
@@ -53,3 +53,6 @@ on_success:
   on:
     branch: master                 # release from master branch only
     APPVEYOR_REPO_TAG: true        # deploy except on tag push only
+  branches:
+    only:
+    - master
