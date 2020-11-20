@@ -189,15 +189,18 @@ Task TestModule -Description "Run Pester Tests and CoeCoverage" -Depends Install
     if (Test-Path "$($invokePester.Path)\cultures.json") {
         $invokePester.Add('EnableExit', $true)
         $currentCulture = Get-Culture
+
+        $invokePester | Export-Clixml "${env:Temp}\invokePester.xml"
+
         foreach ($culture in (Get-Content "$($invokePester.Path)\cultures.json" | ConvertFrom-Json)) {
             Set-Culture -CultureInfo $culture
-            $res = powershell.exe Invoke-Pester @invokePester
-            # Write-Host "[BUILD TestModule] Pester Result: $($res | ConvertTo-Json)" -ForegroundColor Magenta
+            $res = & powershell.exe -c "`$invokePester = Import-Clixml `"`${env:Temp}\invokePester.xml`"; Invoke-Pester @invokePester"
+            Write-Host "[BUILD TestModule] Pester Result: $($res | Out-String)" -ForegroundColor Magenta
         }
         Set-Culture -CultureInfo $currentCulture
     } else {
         $res = Invoke-Pester @invokePester
-        # Write-Host "[BUILD TestModule] Pester Result: $($res | ConvertTo-Json)" -ForegroundColor Magenta
+        Write-Host "[BUILD TestModule] Pester Result: $($res | Out-String)" -ForegroundColor Magenta
     }
     
     $exportCodeCovIoJson = @{

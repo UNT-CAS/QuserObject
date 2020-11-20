@@ -19,7 +19,8 @@ install:
 # Bootstrap PSDepend and Install Dependencies
 - ps: |
     Install-PackageProvider -Name NuGet -MinimumVersion '2.8.5.201' -Force
-    Install-Module -Name PSDepend -Force; Import-Module -Name PSDepend
+    Install-Module -Name PSDepend -Scope CurrentUser -Force
+    Import-Module -Name PSDepend
     Invoke-PSDepend '.\REQUIREMENTS.psd1' -Force
 
 
