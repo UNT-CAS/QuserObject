@@ -48,7 +48,7 @@ function ConvertTo-QuserObject {
         )
         Write-Debug "[QuserObject ConvertTo-QuserObject] UserName Size: ${usernameSize}"
         
-        foreach ($row in $quserRows[1..($quserRows.Count -1)]) {
+        foreach ($row in $quserRows[1..$quserRows.GetUpperBound(0)]) {
             Write-Debug "[QuserObject ConvertTo-QuserObject] Process Row [$($row.GetType())]: ${row}"
             
             $rowUserName = $row.Substring($usernameSize[0], $usernameSize[1])
