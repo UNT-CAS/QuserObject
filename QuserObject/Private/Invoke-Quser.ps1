@@ -38,8 +38,6 @@ function Invoke-Quser {
             $cmd = '{0}{1} /SERVER:{2}'
         }
 
-        # crude conditional add of sapce
-        if ($UserOrSession) { $UserOrSession = ' ' + $UserOrSession }
         $quser = $cmd -f (Get-Command 'quser').Path, $UserOrSession, $Server
         Write-Debug "[QuserObject Invoke-Quser] QUSER Command: ${quser}"
 
