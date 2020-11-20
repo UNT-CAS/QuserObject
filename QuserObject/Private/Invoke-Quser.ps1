@@ -38,7 +38,13 @@ function Invoke-Quser {
             $cmd = '{0} {1} /SERVER:{2}'
         }
 
-        $quser = $cmd -f (Get-Command 'quser').Path, $UserOrSession, $Server
+        try {
+            $quserPath = (Get-Command 'quser.exe' -ErrorAction 'Stop').Path
+        } catch {
+            $quserPath = (Get-Command "$env:SystemRoot\SysNative\quser.exe" -ErrorAction 'Stop').Path
+        }
+
+        $quser = $cmd -f $quserPath, $UserOrSession, $Server
         Write-Debug "[QuserObject Invoke-Quser] QUSER Command: ${quser}"
 
         try {
