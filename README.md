@@ -109,6 +109,13 @@ The return `IdleTime` property will be different depending on whether or not thi
 - Parameter Not Set: `[System.TimeSpan] '3.04:05:00'`
 - Parameter Is Set: `[System.DateTime] '07/29/2018 07:56:00'`
 
+## UserOrSession
+
+- Type: `[string]`
+- Default: ``
+
+Optional username, sessionname, or sessionid to pass on to `quser.exe`.
+
 ## AdComputer
 
 - Type: `[PSObject]`
