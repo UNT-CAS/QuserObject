@@ -20,9 +20,9 @@ function ConvertTo-QuserObject {
     )
 
     begin {
+        
         Write-Debug "[QuserObject ConvertTo-QuserObject] Begin Bound Parameters: $($MyInvocation.BoundParameters | ConvertTo-Json)"
         Write-Debug "[QuserObject ConvertTo-QuserObject] Begin Unbound Parameters: $($MyInvocation.UnboundParameters | ConvertTo-Json)"
-        $headerDone = $false
     }
 
     process {
@@ -35,73 +35,63 @@ function ConvertTo-QuserObject {
             $QuserOutput.Result[0] = $QuserOutput.Result[0].Replace('.', ' ')
         }
 
-        Write-Debug "[QuserObject ConvertTo-QuserObject] QuserOutput.Result: $($QuserOutput.Result | Out-String)"
-
-        $quserCsv = (($QuserOutput.Result) -replace '\s{2,}', ',').Trim() | ForEach-Object {
-            Write-Debug "[QuserObject ConvertTo-QuserObject] Add Comma, if needed: $_"
-            if ($_.Split(',').Count -eq 5) {
-                Write-Output ($_ -replace '(^[^,]+)', '$1,')
-            } else {
-                Write-Output $_
-            }
-        }
-
-        $quserCsvHeader = $quserCSV[0].Split(',').Trim()
-        Write-Debug "[QuserObject ConvertTo-QuserObject] Header Row: $($userCsvHeader -join ', ')"
-
-        $quserObj = $quserCsv | ConvertFrom-Csv
-
-        if (($quserObj | Measure-Object).Count -eq 1) {
-            $quserObj = ,$quserObj
-        }
+        Write-Debug "[QuserObject ConvertTo-QuserObject] QuserOutput.Result:`n$($QuserOutput.Result | Out-String)"
         
-        foreach ($row in $quserObj) {
-            Write-Debug "[QuserObject ConvertTo-QuserObject] Process Row: ${row}"
+        $quserRows = $QuserOutput.Result
+        $headerRow = $quserRows[0]
+        Write-Debug "[QuserObject ConvertTo-QuserObject] Header:`n$($headerRow | Out-String)"
+        
+        $match = [regex]::Match($headerRow, '(\s{2,})')
+        $usernameSize = @(
+            0,
+            ($match.Index + $match.Length)
+        )
+        Write-Debug "[QuserObject ConvertTo-QuserObject] UserName Size: ${usernameSize}"
+        
+        foreach ($row in $quserRows[1..($quserRows.Count -1)]) {
+            Write-Debug "[QuserObject ConvertTo-QuserObject] Process Row [$($row.GetType())]: ${row}"
+            
+            $rowUserName = $row.Substring($usernameSize[0], $usernameSize[1])
+            Write-Debug "[QuserObject ConvertTo-QuserObject] Row UserName: $rowUserName"
+            
+            $restOfRow = $row.TrimStart($rowUserName).Trim()
+            Write-Debug "[QuserObject ConvertTo-QuserObject] Rest of Row [$($row.GetType())]: ${restOfRow}"
 
-            # IdleTime
-            $getQuserIdleTime = @{
-                QuserIdleTime = $row.($quserCsvHeader[4])
-                AsDateTime    = $script:IdleStartTime
-            }
+            [Collections.ArrayList] $rowSplit = $restOfRow -split '\s{2,}'
+            Write-Debug "[QuserObject ConvertTo-QuserObject] Process RowSplit [$($rowSplit.GetType())]:`n$($rowSplit | Out-String)"
 
-            Write-Debug "[QuserObject ConvertTo-QuserObject] Processing Row: $($row | Out-String) "
-            Write-Debug "[QuserObject ConvertTo-QuserObject] Pre Output ($(($row | Measure-Object).Count)): $($row | Out-String)"
 
-            $output = @{}
-
-            Write-Debug "[QuserObject ConvertTo-QuserObject] Server: $($QuserOutput.Server)"
-            $output.Add('Server',      ($QuserOutput.Server))
-
-            Write-Debug "[QuserObject ConvertTo-QuserObject] Username: $(([string] $row.($quserCsvHeader[0])))"
-            [string] $username = $row.($quserCsvHeader[0])
-
-            if ($username.StartsWith('>')) {
-                $output.Add('Username', $username.Substring(1))
-                $output.Add('IsCurrentSession', $true)
-            } else {
-                $output.Add('Username', $username)
+            if ($rowSplit.Count -eq 4) {
+                # SessionName appears to be blank
+                $rowSplit.Insert(0, '')
+                Write-Debug "[QuserObject ConvertTo-QuserObject] Process RowSplit FIXED [$($rowSplit.GetType())]:`n$($rowSplit | Out-String)"
             }
             
-            Write-Debug "[QuserObject ConvertTo-QuserObject] Sessionname: $(([string] $row.($quserCsvHeader[1])))"
-            $output.Add('Sessionname', ([string] $row.($quserCsvHeader[1])))
+            $getQuserIdleTime = @{
+                QuserIdleTime = $rowSplit[3]
+                AsDateTime    = $script:IdleStartTime
+            }
+            Write-Debug "[QuserObject ConvertTo-QuserObject] QuserIdleTime Splat:`n$($getQuserIdleTime | Out-String)"
+            
+            $quser = @{
+                IsCurrentSession = $rowUserName.StartsWith('>')
+                UserName = $rowUserName.TrimStart('>').Trim()
+                SessionName = $rowSplit[0]
+                Id = $rowSplit[1] -as [int]
+                State = $rowSplit[2]
+                IdleTime = (Get-QuserIdleTime @getQuserIdleTime)
+                LogonTime = (Get-Date $rowSplit[4])
+                Server = $QuserOutput.Server
+            }
+            Write-Debug "[QuserObject ConvertTo-QuserObject] Row Parsed:`n$($quser | Out-String)"
+            
+            $quserObject = New-Object PSObject -Property $quser
+            Write-Debug "[QuserObject ConvertTo-QuserObject] QuserObject:`n$($quserObject | Out-String)"
+            
+            $quserObject.PSTypeNames.Insert(0, 'QuserObject')
+            Write-Debug "[QuserObject ConvertTo-QuserObject] QuserObject Types:`n$($quserObject.PSTypeNames | Out-String)"
 
-            Write-Debug "[QuserObject ConvertTo-QuserObject] Id: $(([int] $row.($quserCsvHeader[2])))"
-            $output.Add('Id', ([int] $row.($quserCsvHeader[2])))
-
-            Write-Debug "[QuserObject ConvertTo-QuserObject] State: $(([string] $row.($quserCsvHeader[3])))"
-            $output.Add('State', ([string] $row.($quserCsvHeader[3])))
-
-            $quserIdleTime = Get-QuserIdleTime @getQuserIdleTime
-            Write-Debug "[QuserObject ConvertTo-QuserObject] IdleTime: ${quserIdleTime}"
-            $output.Add('IdleTime', $quserIdleTime)
-
-            Write-Debug "[QuserObject ConvertTo-QuserObject] LogonTime: $(Get-Date $row.($quserCsvHeader[5]))"
-            $output.Add('LogonTime', (Get-Date $row.($quserCsvHeader[5])))
-
-            $newObject = New-Object PSObject -Property $output
-            $newObject.PSTypeNames.Insert(0, 'QuserObject')
-            Write-Debug "[QuserObject ConvertTo-QuserObject] Output ($(($row | Measure-Object).Count)): $($output | Out-String)"
-            Write-Output $newObject
+            Write-Output $quserObject
         }
     }
 }
