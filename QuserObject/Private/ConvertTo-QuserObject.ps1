@@ -54,7 +54,7 @@ function ConvertTo-QuserObject {
             $rowUserName = $row.Substring($usernameSize[0], $usernameSize[1])
             Write-Debug "[QuserObject ConvertTo-QuserObject] Row UserName: $rowUserName"
             
-            $restOfRow = $row.TrimStart($rowUserName).Trim()
+            $restOfRow = $row.Substring($usernameSize[1]).Trim()
             Write-Debug "[QuserObject ConvertTo-QuserObject] Rest of Row [$($row.GetType())]: ${restOfRow}"
 
             [Collections.ArrayList] $rowSplit = $restOfRow -split '\s{2,}'
